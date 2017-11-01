@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>acx/CheckBox.qml</file>
+        <file>acx/SpinBox.qml</file>
+        <file>acx/ProgressBar.qml</file>
+        <file>acx/RadioButton.qml</file>
+    </qresource>
+</RCC>

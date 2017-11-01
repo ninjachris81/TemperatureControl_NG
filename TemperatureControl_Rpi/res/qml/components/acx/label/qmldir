@@ -1,0 +1,8 @@
+module acx.label
+
+ACXEditLabel 1.0 ACXEditLabel.qml
+ACXLabel 1.0 ACXLabel.qml
+ACXValueLabel 1.0 ACXValueLabel.qml
+ACX2CompLabel 1.0 ACX2CompLabel.qml
+ACXButtonLabel 1.0 ACXButtonLabel.qml
+ACXValueRangeLabel 1.0 ACXValueRangeLabel.qml

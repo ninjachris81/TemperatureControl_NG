@@ -1,0 +1,7 @@
+module acx.button
+
+ACXButton 1.0 ACXButton.qml
+ACXQuickButton 1.0 ACXQuickButton.qml
+ACXHomeButton 1.0 ACXHomeButton.qml
+ACXNavButton 1.0 ACXNavButton.qml
+ACXToggleButton 1.0 ACXToggleButton.qml

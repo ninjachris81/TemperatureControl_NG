@@ -1,0 +1,3 @@
+/build-*
+/TemperatureControl_Arduino/Credentials.h
+*.pro.user*

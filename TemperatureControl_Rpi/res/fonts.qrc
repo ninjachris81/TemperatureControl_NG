@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>fonts/HLL_____.TTF</file>
+        <file>fonts/HLM_____.TTF</file>
+    </qresource>
+</RCC>

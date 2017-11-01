@@ -1,0 +1,4 @@
+progress_bar + progress_bar_gradient:
+
+l: 0px
+r: 25px

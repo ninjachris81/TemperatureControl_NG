@@ -1,0 +1,8 @@
+module acx.speller
+
+singleton ACXSpellerContainer 1.0 ACXSpellerContainer.qml
+ACXSpellerBase 1.0 ACXSpellerBase.qml
+ACXGeneralSpeller 1.0 ACXGeneralSpeller.qml
+ACXTextInput 1.0 ACXTextInput.qml
+ACXDateTimeInput 1.0 ACXDateTimeInput.qml
+ACXValueInput 1.0 ACXValueInput.qml

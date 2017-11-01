@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/QtQuick/VirtualKeyboard/content/layouts">
+        <file>en_US/dialpad.qml</file>
+        <file>en_US/digits.qml</file>
+        <file>en_US/handwriting.qml</file>
+        <file>en_US/main.qml</file>
+        <file>en_US/numbers.qml</file>
+        <file>en_US/symbols.qml</file>
+    </qresource>
+</RCC>

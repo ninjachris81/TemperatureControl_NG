@@ -1,0 +1,11 @@
+rl: 1px
+t:  4px
+b:  3px
+
+Size: 80px x 600px
+
+Blue HEX:    005387
+Orange HEX:  f9ac08 
+Red HEX:     ea3636
+
+Re-use white Icons from Machine Information overlay
