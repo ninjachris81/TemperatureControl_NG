@@ -77,5 +77,7 @@
         <file>qml/DefaultStyle.js</file>
         <file>qml/screens/TimeSettings.qml</file>
         <file>qml/screens/IoControl.qml</file>
+        <file>qml/screens/TemperatureControl.qml</file>
+        <file>qml/screens/DeviceConfiguration.qml</file>
     </qresource>
 </RCC>

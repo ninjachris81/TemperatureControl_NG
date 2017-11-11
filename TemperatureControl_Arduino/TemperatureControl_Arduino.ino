@@ -44,8 +44,11 @@ void setup() {
   taskManager.registerTask(&commController);
   taskManager.registerTask(&heaterController);
   taskManager.registerTask(&broadcastController);
-  
+
   taskManager.init();
+
+  broadcastController.registerSyncSupport(&temperatureController);
+  broadcastController.registerSyncSupport(&ioController);
 }
 
 void loop() {

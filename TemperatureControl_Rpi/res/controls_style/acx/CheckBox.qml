@@ -6,6 +6,8 @@ import de.tempcontrol 1.0
 
 import "qrc:/qml/components/acx/label"
 
+import "qrc:/qml/DefaultStyle.js" as DefaultStyle
+
 /* THIS COMPONENT NEEDS REFACTORING */
 
 T.CheckBox {
@@ -47,7 +49,7 @@ T.CheckBox {
             height: 32
             width: 74
 
-            color: control.checked ? VariantConfigurationManager.getValue(VariantConfigurationManager.KEY_COLOR_BRIGHT) : VariantConfigurationManager.getValue(VariantConfigurationManager.KEY_COLOR_TEXT)
+            color: control.checked ? DefaultStyle.brightColor : DefaultStyle.fontColor
             radius: 360
 
             Rectangle {

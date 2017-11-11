@@ -21,6 +21,12 @@ public:
 
     uint8_t normalTempHC;
     uint8_t normalTempWater;
+
+    uint8_t gasBurnerTankStartTemp;
+    uint8_t gasBurnerTankEndTemp;
+    uint8_t gasBurnerMinToggleTimeMin;
+    uint8_t gasBurnerActiveHourFrom;
+    uint8_t gasBurnerActiveHourTo;
     
     // This is for mere detection if they are your settings
     char version_of_program[4]; // it is the last variable of the struct
@@ -31,6 +37,8 @@ public:
     false,
     6, 38,32,
     32, 25,
+    38, 45, 10,
+    5, 23,
     CONFIG_VERSION
   };
 

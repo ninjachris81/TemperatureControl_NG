@@ -216,7 +216,7 @@ ACXScreenBase {
         isAbort: true
 
         onTriggered: {
-            DeviceState.disableSimulations()
+            DeviceState.disableIOSimulations()
         }
     }
 

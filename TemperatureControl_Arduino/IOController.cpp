@@ -4,20 +4,28 @@
 #include "Pins.h"
 
 #include "CommController.h"
+#include "ConfigController.h"
 #include "TaskIDs.h"
 #include "SerialProtocol.h"
 
 IOController::IOController() : AbstractIntervalTask(1000) {
-  for (uint8_t i=0;i<STATE_COUNT;i++) {
-    ioStates[i].registerValueChangeListener(this);
-    ioStates[i].init(i, false);
-  }
 }
 
 void IOController::init() {
   pinMode(PIN_BUILTIN_LED, OUTPUT);
 
-  for (uint8_t i=0;i<STATE_COUNT;i++) pinMode(PIN_IO_BASE + i, OUTPUT);
+  uint8_t gasBurnerId = PIN_GAS_BURNER - PIN_IO_BASE;
+  
+  for (uint8_t i=0;i<STATE_COUNT;i++) {
+    ioStates[i].registerValueChangeListener(this);
+    pinMode(PIN_IO_BASE + i, OUTPUT);
+
+    if (i==gasBurnerId) {
+      ioStates[i].init(i, false, taskManager->getTask<ConfigController*>(CONFIG_CONTROLLER)->getConfig()->gasBurnerMinToggleTimeMin * GAS_BURNER_TOGGLE_TIME_MIN_FACTOR);
+    } else {
+      ioStates[i].init(i, false, GENERAL_TOGGLE_TIME);
+    }
+  }
 }
 
 void IOController::update() {
@@ -25,6 +33,13 @@ void IOController::update() {
     digitalWrite(PIN_BUILTIN_LED, LOW);
   } else {
     digitalWrite(PIN_BUILTIN_LED, HIGH);    
+  }
+  for (uint8_t i=0;i<STATE_COUNT;i++) ioStates[i].update();
+}
+
+void IOController::syncData(int filter) {
+  for (uint8_t i=0;i<STATE_COUNT;i++) {
+    if (filter==-1 || filter==i) taskManager->getTask<CommController*>(COMM_CONTROLLER)->sendCmd(PIN_IO_BASE + i, String(ioStates[i].getValue()));
   }
 }
 

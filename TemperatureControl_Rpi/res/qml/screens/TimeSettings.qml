@@ -16,13 +16,28 @@ ACXScreenBase {
     id: root
 
     property date deviceDate
-    nextScreen: ScreenNames.SCREEN_POP
+    nextScreen: ScreenNames.SCREEN_MANUAL_NEXT
     nextDisabledReason: !SerialComm.isConnected ? "Not connected" : ""
 
     isFinishScreen: true
 
-    popAction: function() {
+    onNextTriggered: {
         DeviceState.sendTimestamp(Date.UTC(yearInput.value, monthInput.value-1, dayInput.value, hourInput.value, minuteInput.value, 0, 0) / 1000);
+        popStack()
+    }
+
+    ACXButton {
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        height: 50
+        width: 80
+
+        label.text: qsTr("Sync")
+
+        onTriggered: {
+            DeviceState.syncNTPTime()
+        }
     }
 
     RowLayout {
@@ -104,7 +119,7 @@ ACXScreenBase {
             Layout.fillWidth: true
             label: qsTr("Month")
 
-            value: deviceDate.getMonth()
+            value: deviceDate.getMonth() + 1
 
             from: 1
             to: 12
@@ -134,6 +149,14 @@ ACXScreenBase {
 
     Component.onCompleted: {
         deviceDate = new Date(DeviceState.timestamp * 1000)
+    }
+
+    Connections {
+        target: DeviceState
+
+        onNtpTimeSynced: {
+            deviceDate = new Date(DeviceState.timestamp * 1000)
+        }
     }
 
 }

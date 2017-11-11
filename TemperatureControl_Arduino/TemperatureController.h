@@ -5,7 +5,9 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <SmoothValue.h>
+#include <Property.h>
 #include <AnalogTempSensor.h>
+#include "BroadcastController.h"
 
 #include "Pins.h"
 
@@ -26,18 +28,26 @@
 #define ATEMP_SENSOR_INDEX_OUTSIDE 2
 #define ATEMP_SENSOR_INDEX_SOLAR 3
 
-class TemperatureController : public AbstractIntervalTask {
+#define TEMPERATURES_COUNT DIGITAL_SENSOR_COUNT+ANALOG_SENSOR_COUNT
+
+class TemperatureController : public AbstractIntervalTask, public Property<float>::ValueChangeListener, public BroadcastController::SyncSupport {
 public:
   TemperatureController();
   ~TemperatureController();
+
+  void syncData(int filter = -1);
 
   void init();
 
   void update();
 
-  float getTempHC();
-  float getTempW();
-  float getTempTank();
+  void simulateTemp(uint8_t index, float value);
+  
+  void disableSimulation(uint8_t index);
+
+  float getTemp(uint8_t index);
+
+  void onPropertyValueChange(uint8_t id, float value);
 
 private:
   uint8_t foundSensors = 0;
@@ -46,6 +56,8 @@ private:
   SmoothValue digitalTemps[DIGITAL_SENSOR_COUNT];
 
   AnalogTempSensor analogTemps[ANALOG_SENSOR_COUNT];
+
+  Property<float> temperatures[TEMPERATURES_COUNT];
 };
 
 #endif    // TEMPERATURECONTROLLER_H

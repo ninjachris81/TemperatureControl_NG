@@ -32,10 +32,6 @@ Window {
         focus: true
     }
 
-    Component.onCompleted: {
-        backgroundRect.forceActiveFocus()       // can be removed in prod
-    }
-
     ACXStackView {
         id: stackView
 
@@ -109,6 +105,20 @@ Window {
         z: 2
 
         visible: Qt.inputMethod.visible && ACXSpellerContainer.currentSpellerType===ACXSpellerContainer.spellerTypeGeneral
+    }
+
+    Connections {
+        target: SerialComm
+
+        onIsConnectedChanged: {
+            console.log("Sync All Data")
+            if (SerialComm.isConnected) DeviceState.syncData()
+        }
+    }
+
+    Component.onCompleted: {
+        console.log("Sync All Data")
+        DeviceState.syncData()
     }
 
     /*

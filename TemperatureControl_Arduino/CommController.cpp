@@ -8,6 +8,8 @@
 #include "SerialProtocol.h"
 #include "IOController.h"
 #include "ConfigController.h"
+#include "TemperatureController.h"
+#include "BroadcastController.h"
 #include "TaskIDs.h"
 
 CommController::CommController() : AbstractTask() {
@@ -39,12 +41,21 @@ void CommController::update() {
       case CMD_CIRCULATION_PUMP:
       case CMD_HEAT_CHANGER_PUMP:
         LOG_PRINTLN(F("Simulating IO"));
-        taskManager->getTask<IOController*>(IO_CONTROLLER)->simulateState(cmd - PIN_IO_BASE, s.substring(2).toInt()==1);
+        taskManager->getTask<IOController*>(IO_CONTROLLER)->simulateState(cmd - CMD_IO_BASE, s.substring(2).toInt()==1);
         break;
+        
       case CMD_DISABLE_SIMULATION:
-        LOG_PRINTLN(F("Disable simulation"));
-        taskManager->getTask<IOController*>(IO_CONTROLLER)->disableSimulation(s.substring(2).toInt() - PIN_IO_BASE);
+        if (s.substring(2).toInt()>=CMD_TEMP_BASE) {
+          LOG_PRINTLN(F("Disable Temp simulation"));
+          taskManager->getTask<TemperatureController*>(TEMPERATURE_CONTROLLER)->disableSimulation(s.substring(2).toInt() - CMD_TEMP_BASE);
+        } else if (s.substring(2).toInt()>=CMD_IO_BASE) {
+          LOG_PRINTLN(F("Disable IO simulation"));
+          taskManager->getTask<IOController*>(IO_CONTROLLER)->disableSimulation(s.substring(2).toInt() - CMD_IO_BASE);
+        } else {
+          LOG_PRINTLN(F("Unknown disable simu"));
+        }
         break;
+        
       case CMD_CONF_HOLIDAY_MODE:
       case CMD_CONF_PREHEAT_HOUR_FROM:
       case CMD_CONF_PREHEAT_TARGET_TEMP_HC:
@@ -54,6 +65,25 @@ void CommController::update() {
         LOG_PRINTLN(F("Set Config"));
         taskManager->getTask<ConfigController*>(CONFIG_CONTROLLER)->setConfigValue(cmd, s.substring(2));
         break;
+
+      case CMD_DTEMP_HC:
+      case CMD_DTEMP_WATER:
+      case CMD_DTEMP_TANK:
+      case CMD_ATEMP_TANK:
+      case CMD_ATEMP_BOILER:
+      case CMD_ATEMP_OUTSIDE:
+      case CMD_ATEMP_SOLAR:
+        LOG_PRINTLN(F("Simulating Temp"));
+        taskManager->getTask<TemperatureController*>(TEMPERATURE_CONTROLLER)->simulateTemp(cmd - CMD_TEMP_BASE, s.substring(2).toFloat());
+        break;
+      case CMD_SYNC_DATA: {
+        int filter = -1;
+        if (s.length()>2) filter = s.substring(2).toInt();
+        LOG_PRINT(F("Sync data "));
+        LOG_PRINTLN(filter);
+        taskManager->getTask<BroadcastController*>(BROADCAST_CONTROLLER)->syncData(filter);
+        break;
+      }
       default:
         LOG_PRINT(F("Unknown cmd "));
         LOG_PRINTLN(cmd);

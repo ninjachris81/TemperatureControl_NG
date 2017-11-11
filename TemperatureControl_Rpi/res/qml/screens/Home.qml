@@ -31,6 +31,7 @@ ACXScreenBase {
         anchors.margins: 20
 
         columns: 2
+        columnSpacing: 60
 
         ACX2CompLabel {
             Layout.preferredWidth: parent.width/2
@@ -40,10 +41,12 @@ ACXScreenBase {
             rightPart: DeviceState.freeRam
         }
 
-        Item {
-            Layout.minimumWidth: 10
+        ACX2CompLabel {
             Layout.fillWidth: true
-            Layout.preferredHeight: 10
+            Layout.preferredHeight: 50
+
+            leftPart: qsTr("Temp HC")
+            rightPart: DeviceState.tempHC.toFixed(2)
         }
 
         ACX2CompLabel {
@@ -54,24 +57,29 @@ ACXScreenBase {
             rightPart: Qt.formatDateTime(new Date(DeviceState.timestamp * 1000))
         }
 
-        Item {
-            Layout.minimumWidth: 10
+        ACX2CompLabel {
             Layout.fillWidth: true
-            Layout.preferredHeight: 10
+            Layout.preferredHeight: 50
+
+            leftPart: qsTr("Temp Water")
+            rightPart: DeviceState.tempWater.toFixed(2)
         }
+
 
         ACX2CompLabel {
             Layout.preferredWidth: parent.width/2
             Layout.preferredHeight: 50
 
             leftPart: qsTr("Uptime")
-            rightPart: DeviceState.uptime / 1000 + " sec"
+            rightPart: (DeviceState.uptime / 1000).toFixed(0) + " sec"
         }
 
-        Item {
-            Layout.minimumWidth: 10
+        ACX2CompLabel {
             Layout.fillWidth: true
-            Layout.preferredHeight: 10
+            Layout.preferredHeight: 50
+
+            leftPart: qsTr("Temp Tank")
+            rightPart: DeviceState.tempTank.toFixed(2)
         }
 
         Item {

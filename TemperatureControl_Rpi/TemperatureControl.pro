@@ -10,6 +10,8 @@ RESOURCES += res/qml.qrc \
     res/keyboard_layout/keyboard_layout.qrc \
     res/controls_style/controls_style.qrc
 
+DEFINES += "QNTP_EXPORT="
+
 # Additional import path used to resolve QML modules in Qt Creator's code model
 
 QML_IMPORT_PATH += ./qml/components/acx/
@@ -38,11 +40,20 @@ SOURCES += \
     screennames.cpp \
     serialcomm.cpp \
     devicelog.cpp \
-    devicestate.cpp
+    devicestate.cpp \
+    qntp/NtpClient.cpp \
+    qntp/NtpReply.cpp
 
 HEADERS += \
     screennames.h \
     serialcomm.h \
     devicelog.h \
     devicestate.h \
-    ../TemperatureControl_Arduino/SerialProtocol.h
+    ../TemperatureControl_Arduino/SerialProtocol.h \
+    qntp/config.h \
+    qntp/NtpClient.h \
+    qntp/NtpPacket.h \
+    qntp/NtpReply.h \
+    qntp/NtpReply_p.h \
+    qntp/NtpTimestamp.h \
+    qntp/QNtp.h

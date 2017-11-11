@@ -34,6 +34,8 @@ QString ScreenNames::resolveScreenName(ScreenName sn)
     case SCREEN_DEVICE_LOG: return tr("Device Log");
     case SCREEN_TIME_SETTINGS: return tr("Time Settings");
     case SCREEN_IO_CONTROL: return tr("IO Control");
+    case SCREEN_TEMPERATURE_CONTROL: return tr("Temperature Control");
+    case SCREEN_DEVICE_CONFIGURATION: return tr("Device Configuration");
 
     default:
         qWarning() << "Unknown screen name:" << sn;

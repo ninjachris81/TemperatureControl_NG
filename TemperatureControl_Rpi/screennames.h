@@ -22,7 +22,9 @@ public:
         SCREEN_HOME = 0,
         SCREEN_DEVICE_LOG,
         SCREEN_TIME_SETTINGS,
-        SCREEN_IO_CONTROL
+        SCREEN_IO_CONTROL,
+        SCREEN_TEMPERATURE_CONTROL,
+        SCREEN_DEVICE_CONFIGURATION
 
     };
     Q_ENUMS(ScreenName)

@@ -5,7 +5,7 @@
 
 SerialComm::SerialComm(QObject *parent) : QObject(parent), mBytesWritten(0)
 {
-    mSerialPort.setPortName("ttyACM0");
+    mSerialPort.setPortName("ttyMega");
     mSerialPort.setBaudRate(QSerialPort::Baud9600);
     mSerialPort.setDataBits(QSerialPort::Data8);
     mSerialPort.setParity(QSerialPort::NoParity);

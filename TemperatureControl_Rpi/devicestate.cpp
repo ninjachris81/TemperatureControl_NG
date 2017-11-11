@@ -5,7 +5,12 @@
 
 DeviceState::DeviceState(QObject *parent) : QObject(parent)
 {
+    connect(&mNtpClient, SIGNAL(replyReceived(QHostAddress,quint16,NtpReply)), SLOT(onReplyReceived(QHostAddress,quint16,NtpReply)));
 
+    for (quint8 i=0;i<TEMP_COUNT;i++) {
+        mTempIsSimulated[i] = false;
+        mTempSimulated[i] = 0;
+    }
 }
 
 void DeviceState::receivedCmd(QString cmd) {
@@ -22,6 +27,7 @@ void DeviceState::receivedCmd(QString cmd) {
     case CMD_UPTIME:
         setUptime(value.toLongLong());
         break;
+
     case CMD_SOLAR_PUMP:
         setSolarPump(value.toInt()==1);
         break;
@@ -37,6 +43,30 @@ void DeviceState::receivedCmd(QString cmd) {
     case CMD_HEAT_CHANGER_PUMP:
         setHeatChangerPump(value.toInt()==1);
         break;
+
+    case CMD_DTEMP_HC:
+        setTempHC(value.toFloat());
+        break;
+    case CMD_DTEMP_WATER:
+        setTempWater(value.toFloat());
+        break;
+    case CMD_DTEMP_TANK:
+        setTempTank(value.toFloat());
+        break;
+
+    case CMD_ATEMP_TANK:
+        setTempTank2(value.toFloat());
+        break;
+    case CMD_ATEMP_BOILER:
+        setTempBoiler(value.toFloat());
+        break;
+    case CMD_ATEMP_OUTSIDE:
+        setTempOutside(value.toFloat());
+        break;
+    case CMD_ATEMP_SOLAR:
+        setTempSolar(value.toFloat());
+        break;
+
     }
 
 }
@@ -79,6 +109,34 @@ bool DeviceState::circulationPump() const
 bool DeviceState::heatChangerPump() const
 {
     return mHeatChangerPump;
+}
+
+float DeviceState::tempHC() const {
+    return mTempHC;
+}
+
+float DeviceState::tempWater() const {
+    return mTempWater;
+}
+
+float DeviceState::tempTank() const {
+    return mTempTank;
+}
+
+float DeviceState::tempTank2() const {
+    return mTempTank2;
+}
+
+float DeviceState::tempBoiler() const {
+    return mTempBoiler;
+}
+
+float DeviceState::tempOutside() const {
+    return mTempOutside;
+}
+
+float DeviceState::tempSolar() const {
+    return mTempSolar;
 }
 
 void DeviceState::setHeatChangerPump(bool heatChangerPump)
@@ -137,6 +195,48 @@ void DeviceState::setFreeRam(const quint16 &freeRam)
     emit freeRamChanged();
 }
 
+void DeviceState::setTempHC(float tempHC) {
+    if (mTempHC==tempHC) return;
+    mTempHC = tempHC;
+    emit tempHCChanged();
+}
+
+void DeviceState::setTempWater(float tempWater) {
+    if (mTempWater==tempWater) return;
+    mTempWater = tempWater;
+    emit tempWaterChanged();
+}
+
+void DeviceState::setTempTank(float tempTank) {
+    if (mTempTank==tempTank) return;
+    mTempTank = tempTank;
+    emit tempTankChanged();
+}
+
+void DeviceState::setTempTank2(float tempTank2) {
+    if (mTempTank2==tempTank2) return;
+    mTempTank2 = tempTank2;
+    emit tempTank2Changed();
+}
+
+void DeviceState::setTempBoiler(float tempBoiler) {
+    if (mTempBoiler==tempBoiler) return;
+    mTempBoiler = tempBoiler;
+    emit tempBoilerChanged();
+}
+
+void DeviceState::setTempOutside(float tempOutside) {
+    if (mTempOutside==tempOutside) return;
+    mTempOutside = tempOutside;
+    emit tempOutsideChanged();
+}
+
+void DeviceState::setTempSolar(float tempSolar) {
+    if (mTempSolar==tempSolar) return;
+    mTempSolar = tempSolar;
+    emit tempSolarChanged();
+}
+
 void DeviceState::toggleAndSendIOState(IoDevice device) {
     bool toSetState;
     quint8 cmd;
@@ -174,13 +274,82 @@ void DeviceState::toggleAndSendIOState(IoDevice device) {
     sendCmd(cmd, toSetState);
 }
 
-void DeviceState::disableSimulations() {
-    qDebug() << "Disable simulations";
+void DeviceState::disableIOSimulations() {
+    qDebug() << "Disable IO simulations";
     sendCmd(CMD_DISABLE_SIMULATION, (qlonglong)CMD_SOLAR_PUMP);
     sendCmd(CMD_DISABLE_SIMULATION, (qlonglong)CMD_RADIATOR_PUMP);
     sendCmd(CMD_DISABLE_SIMULATION, (qlonglong)CMD_GAS_BURNER);
     sendCmd(CMD_DISABLE_SIMULATION, (qlonglong)CMD_CIRCULATION_PUMP);
     sendCmd(CMD_DISABLE_SIMULATION, (qlonglong)CMD_HEAT_CHANGER_PUMP);
+}
+
+void DeviceState::simulateTemp(Temperature temp, float value) {
+    quint8 cmd;
+
+    mTempSimulated[temp] = value;
+    mTempIsSimulated[temp] = true;
+
+    switch(temp) {
+    case TEMP_HC:
+        cmd = CMD_DTEMP_HC;
+        break;
+    case TEMP_WATER:
+        cmd = CMD_DTEMP_WATER;
+        break;
+    case TEMP_TANK:
+        cmd = CMD_DTEMP_TANK;
+        break;
+    case TEMP_TANK2:
+        cmd = CMD_ATEMP_TANK;
+        break;
+    case TEMP_BOILER:
+        cmd = CMD_ATEMP_BOILER;
+        break;
+    case TEMP_OUTSIDE:
+        cmd = CMD_ATEMP_OUTSIDE;
+        break;
+    case TEMP_SOLAR:
+        cmd = CMD_ATEMP_SOLAR;
+        break;
+    }
+
+    sendCmd(cmd, QString::number(value));
+}
+
+float DeviceState::getSimulatedValue(Temperature temp) {
+    return mTempSimulated[temp];
+}
+
+bool DeviceState::isSimulated(Temperature temp) {
+    return mTempIsSimulated[temp];
+}
+
+void DeviceState::disableTempSimulation(Temperature temp) {
+    mTempIsSimulated[temp] = false;
+    sendCmd(CMD_DISABLE_SIMULATION, (quint64)(CMD_TEMP_BASE + temp));
+}
+
+void DeviceState::syncNTPTime() {
+    qDebug() << "Sending ntp request";
+
+    QHostAddress addr("52.58.132.98");
+    mNtpClient.sendRequest(addr, 123);
+}
+
+void DeviceState::syncData(int filter) {
+    sendCmd(CMD_SYNC_DATA, (qlonglong)filter);
+}
+
+void DeviceState::onReplyReceived(QHostAddress host, quint16 port, NtpReply reply)
+{
+    Q_UNUSED(host)
+    Q_UNUSED(port)
+
+    qDebug() << "setting time" << reply.referenceTime();
+    setTimestamp(reply.referenceTime().toSecsSinceEpoch());
+    sendTimestamp(reply.referenceTime().toSecsSinceEpoch());
+
+    emit ntpTimeSynced();
 }
 
 void DeviceState::sendTimestamp(quint64 timestamp) {

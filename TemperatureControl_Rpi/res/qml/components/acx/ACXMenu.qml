@@ -64,8 +64,12 @@ Item {
                 liScreenIndex: ScreenNames.SCREEN_IO_CONTROL
             }
             ListElement {
-                liLabel: qsTr("Refrigerant Identification")
-                liScreenIndex: ScreenNames.SCREEN_HOME
+                liLabel: ""
+                liScreenIndex: ScreenNames.SCREEN_TEMPERATURE_CONTROL
+            }
+            ListElement {
+                liLabel: ""
+                liScreenIndex: ScreenNames.SCREEN_DEVICE_CONFIGURATION
             }
         }
 
