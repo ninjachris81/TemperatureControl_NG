@@ -22,6 +22,8 @@ board=mega
 #include "ConfigController.h"
 #include "BroadcastController.h"
 #include "BuzzerController.h"
+#include "TimeController.h"
+#include "ErrorController.h"
 
 TaskManager taskManager;
 
@@ -33,6 +35,8 @@ CommController commController;
 HeaterController heaterController;
 BroadcastController broadcastController;
 BuzzerController buzzerController;
+TimeController timeController;
+ErrorController errorController;
 
 void setup() {
   LOG_INIT();
@@ -47,15 +51,19 @@ void setup() {
   taskManager.registerTask(&heaterController);
   taskManager.registerTask(&broadcastController);
   taskManager.registerTask(&buzzerController);
+  taskManager.registerTask(&timeController);
+  taskManager.registerTask(&errorController);
 
   taskManager.init();
 
   broadcastController.registerSyncSupport(&temperatureController);
   broadcastController.registerSyncSupport(&ioController);
   broadcastController.registerSyncSupport(&heaterController);
+  broadcastController.registerSyncSupport(&timeController);
+  broadcastController.registerSyncSupport(&errorController);
 }
 
 void loop() {
   taskManager.update();
-  delay(1);
+  delay(10);
 }

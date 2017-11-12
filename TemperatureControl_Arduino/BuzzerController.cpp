@@ -9,6 +9,7 @@ BuzzerController::BuzzerController() : AbstractIntervalTask(BEEP_INTERVAL) {
 }
 
 void BuzzerController::init() {
+  buzzerState.init(0, false);
   buzzerState.registerValueChangeListener(this);
   
   taskManager->getTask<IOController*>(IO_CONTROLLER)->setState(INDEX_BUZZER, LOW);

@@ -2,6 +2,7 @@
 #include <LogHelper.h>
 #include "TaskIDs.h"
 #include "CommController.h"
+#include "ErrorController.h"
 #include "SerialProtocol.h"
 
 TemperatureController::TemperatureController() : AbstractIntervalTask(TEMP_INTERVAL_MS) {
@@ -49,6 +50,12 @@ TemperatureController::~TemperatureController() {
 void TemperatureController::init() {
   sensors->begin();
   sensors->setWaitForConversion(false);
+
+  byte addr[8];
+  oneWire->search(addr);
+  LOG_PRINT(F("Devices: "));
+  LOG_PRINTLNF(sensors->getDeviceCount(), DEC);
+  foundSensors = sensors->getDeviceCount();
 }
 
 void TemperatureController::update() {
@@ -82,6 +89,10 @@ void TemperatureController::update() {
       LOG_PRINTLN(F("no 1-wire devices"));
       sensors->begin();
     }
+
+    taskManager->getTask<ErrorController*>(ERROR_CONTROLLER)->raiseError(INDEX_ERROR_DTEMP);
+  } else {
+    taskManager->getTask<ErrorController*>(ERROR_CONTROLLER)->clearError(INDEX_ERROR_DTEMP);
   }
 
   // update analog

@@ -1,3 +1,5 @@
+#define CMD_LENGTH 3
+
 // OTHERS
 #define CMD_TIME 10
 #define CMD_FREE_RAM 11
@@ -38,4 +40,11 @@
 #define CMD_CONF_NORMAL_TEMP_HC 84
 #define CMD_CONF_NORMAL_TEMP_WATER 85
 
+// sync
 #define CMD_SYNC_DATA 99
+
+// errors
+#define CMD_ERROR_BASE 100
+
+#define CMD_ERROR_TIME 100
+#define CMD_ERROR_DTEMP 101
