@@ -21,6 +21,7 @@ board=mega
 #include "HeaterController.h"
 #include "ConfigController.h"
 #include "BroadcastController.h"
+#include "BuzzerController.h"
 
 TaskManager taskManager;
 
@@ -31,6 +32,7 @@ SolarController solarController;
 CommController commController;
 HeaterController heaterController;
 BroadcastController broadcastController;
+BuzzerController buzzerController;
 
 void setup() {
   LOG_INIT();
@@ -44,14 +46,16 @@ void setup() {
   taskManager.registerTask(&commController);
   taskManager.registerTask(&heaterController);
   taskManager.registerTask(&broadcastController);
+  taskManager.registerTask(&buzzerController);
 
   taskManager.init();
 
   broadcastController.registerSyncSupport(&temperatureController);
   broadcastController.registerSyncSupport(&ioController);
+  broadcastController.registerSyncSupport(&heaterController);
 }
 
 void loop() {
   taskManager.update();
-  delay(10);
+  delay(1);
 }

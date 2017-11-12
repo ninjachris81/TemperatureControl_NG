@@ -10,6 +10,8 @@
 #include "ConfigController.h"
 #include "TemperatureController.h"
 #include "BroadcastController.h"
+#include "HeaterController.h"
+#include "BuzzerController.h"
 #include "TaskIDs.h"
 
 CommController::CommController() : AbstractTask() {
@@ -35,6 +37,9 @@ void CommController::update() {
         TimeHelper::handleTime(epoch);
         break;
       }
+      case CMD_RADIATOR_LEVEL:
+        taskManager->getTask<HeaterController*>(HEATER_CONTROLLER)->setRadiatorLevel(s.substring(2).toInt());
+        break;
       case CMD_SOLAR_PUMP:
       case CMD_RADIATOR_PUMP:
       case CMD_GAS_BURNER:
@@ -44,6 +49,11 @@ void CommController::update() {
         taskManager->getTask<IOController*>(IO_CONTROLLER)->simulateState(cmd - CMD_IO_BASE, s.substring(2).toInt()==1);
         break;
         
+      case CMD_BUZZER:
+        LOG_PRINTLN(F("Buzzer"));
+        taskManager->getTask<BuzzerController*>(BUZZER_CONTROLLER)->setBuzzerState(s.substring(2).toInt()==1);
+        break;
+
       case CMD_DISABLE_SIMULATION:
         if (s.substring(2).toInt()>=CMD_TEMP_BASE) {
           LOG_PRINTLN(F("Disable Temp simulation"));
@@ -69,6 +79,7 @@ void CommController::update() {
       case CMD_DTEMP_HC:
       case CMD_DTEMP_WATER:
       case CMD_DTEMP_TANK:
+      case CMD_DTEMP_SOLAR_BACK:
       case CMD_ATEMP_TANK:
       case CMD_ATEMP_BOILER:
       case CMD_ATEMP_OUTSIDE:

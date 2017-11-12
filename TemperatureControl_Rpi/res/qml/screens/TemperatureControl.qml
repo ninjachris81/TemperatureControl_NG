@@ -16,8 +16,6 @@ import "qrc:/qml/components/acx/ACXStackViewParams.js" as ACXStackViewParams
 ACXScreenBase {
     id: root
 
-    nextScreen: ScreenNames.SCREEN_INVALID
-
     ColumnLayout {
         anchors.fill: parent
         anchors.leftMargin: menuLeftMargin + 10
@@ -25,24 +23,31 @@ ACXScreenBase {
         anchors.topMargin: 10
 
         Repeater {
-            model: 7
+            model: 8
 
             RowLayout {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 50
+                Layout.preferredHeight: 40
+
+                ACXLabel {
+                    Layout.preferredHeight: 50
+                    Layout.preferredWidth: 70
+
+                    text: DeviceState.getTempName(index)
+                }
 
                 ACXLabel {
                     id: label
-                    Layout.preferredHeight: 50
+                    Layout.preferredHeight: 40
                     Layout.preferredWidth: 200
                     Layout.fillWidth: true
 
-                    text: qsTr("Temp HC")
+                    text: ""
                 }
 
                 ACXTextInput {
                     id: textInput
-                    Layout.preferredHeight: 50
+                    Layout.preferredHeight: 40
                     Layout.preferredWidth: 200
 
                     inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -60,7 +65,7 @@ ACXScreenBase {
 
                     enabled: textInput.text!==""
 
-                    Layout.preferredHeight: 50
+                    Layout.preferredHeight: 40
                     Layout.preferredWidth: 150
 
                     checked: DeviceState.isSimulated(index)
@@ -77,25 +82,28 @@ ACXScreenBase {
                 Component.onCompleted: {
                     switch(index) {
                     case DeviceState.TEMP_HC:
-                        label.text = Qt.binding(function() { return DeviceState.tempHC })
+                        label.text = Qt.binding(function() { return DeviceState.tempHC.toFixed(2) })
                         break;
                     case DeviceState.TEMP_WATER:
-                        label.text = Qt.binding(function() { return DeviceState.tempWater })
+                        label.text = Qt.binding(function() { return DeviceState.tempWater.toFixed(2) })
                         break;
                     case DeviceState.TEMP_TANK:
-                        label.text = Qt.binding(function() { return DeviceState.tempTank })
+                        label.text = Qt.binding(function() { return DeviceState.tempTank.toFixed(2) })
+                        break;
+                    case DeviceState.TEMP_SOLAR_BACK:
+                        label.text = Qt.binding(function() { return DeviceState.tempSolarBack.toFixed(2) })
                         break;
                     case DeviceState.TEMP_TANK2:
-                        label.text = Qt.binding(function() { return DeviceState.tempTank2 })
+                        label.text = Qt.binding(function() { return DeviceState.tempTank2.toFixed(2) })
                         break;
                     case DeviceState.TEMP_BOILER:
-                        label.text = Qt.binding(function() { return DeviceState.tempBoiler })
+                        label.text = Qt.binding(function() { return DeviceState.tempBoiler.toFixed(2) })
                         break;
                     case DeviceState.TEMP_OUTSIDE:
-                        label.text = Qt.binding(function() { return DeviceState.tempOutside })
+                        label.text = Qt.binding(function() { return DeviceState.tempOutside.toFixed(2) })
                         break;
                     case DeviceState.TEMP_SOLAR:
-                        label.text = Qt.binding(function() { return DeviceState.tempSolar })
+                        label.text = Qt.binding(function() { return DeviceState.tempSolar.toFixed(2) })
                         break;
                     }
                 }

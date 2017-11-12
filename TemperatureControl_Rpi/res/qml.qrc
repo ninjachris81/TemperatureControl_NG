@@ -79,5 +79,6 @@
         <file>qml/screens/IoControl.qml</file>
         <file>qml/screens/TemperatureControl.qml</file>
         <file>qml/screens/DeviceConfiguration.qml</file>
+        <file>qml/screens/HeatingControl.qml</file>
     </qresource>
 </RCC>

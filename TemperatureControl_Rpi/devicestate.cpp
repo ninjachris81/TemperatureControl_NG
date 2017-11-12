@@ -10,6 +10,7 @@ DeviceState::DeviceState(QObject *parent) : QObject(parent)
     for (quint8 i=0;i<TEMP_COUNT;i++) {
         mTempIsSimulated[i] = false;
         mTempSimulated[i] = 0;
+        mTemps[i] = 0.0;
     }
 }
 
@@ -26,6 +27,10 @@ void DeviceState::receivedCmd(QString cmd) {
         break;
     case CMD_UPTIME:
         setUptime(value.toLongLong());
+        break;
+
+    case CMD_RADIATOR_LEVEL:
+        setRadiatorLevel(value.toUShort());
         break;
 
     case CMD_SOLAR_PUMP:
@@ -53,7 +58,9 @@ void DeviceState::receivedCmd(QString cmd) {
     case CMD_DTEMP_TANK:
         setTempTank(value.toFloat());
         break;
-
+    case CMD_DTEMP_SOLAR_BACK:
+        setTempSolarBack(value.toFloat());
+        break;
     case CMD_ATEMP_TANK:
         setTempTank2(value.toFloat());
         break;
@@ -112,31 +119,39 @@ bool DeviceState::heatChangerPump() const
 }
 
 float DeviceState::tempHC() const {
-    return mTempHC;
+    return mTemps[TEMP_HC];
 }
 
 float DeviceState::tempWater() const {
-    return mTempWater;
+    return mTemps[TEMP_WATER];
 }
 
 float DeviceState::tempTank() const {
-    return mTempTank;
+    return mTemps[TEMP_TANK];
+}
+
+float DeviceState::tempSolarBack() const {
+    return mTemps[TEMP_SOLAR_BACK];
 }
 
 float DeviceState::tempTank2() const {
-    return mTempTank2;
+    return mTemps[TEMP_TANK2];
 }
 
 float DeviceState::tempBoiler() const {
-    return mTempBoiler;
+    return mTemps[TEMP_BOILER];
 }
 
 float DeviceState::tempOutside() const {
-    return mTempOutside;
+    return mTemps[TEMP_OUTSIDE];
 }
 
 float DeviceState::tempSolar() const {
-    return mTempSolar;
+    return mTemps[TEMP_SOLAR];
+}
+
+quint8 DeviceState::radiatorLevel() const {
+    return mRadiatorLevel;
 }
 
 void DeviceState::setHeatChangerPump(bool heatChangerPump)
@@ -196,45 +211,57 @@ void DeviceState::setFreeRam(const quint16 &freeRam)
 }
 
 void DeviceState::setTempHC(float tempHC) {
-    if (mTempHC==tempHC) return;
-    mTempHC = tempHC;
+    if (mTemps[TEMP_HC]==tempHC) return;
+    mTemps[TEMP_HC] = tempHC;
     emit tempHCChanged();
 }
 
 void DeviceState::setTempWater(float tempWater) {
-    if (mTempWater==tempWater) return;
-    mTempWater = tempWater;
+    if (mTemps[TEMP_WATER]==tempWater) return;
+    mTemps[TEMP_WATER] = tempWater;
     emit tempWaterChanged();
 }
 
 void DeviceState::setTempTank(float tempTank) {
-    if (mTempTank==tempTank) return;
-    mTempTank = tempTank;
+    if (mTemps[TEMP_TANK]==tempTank) return;
+    mTemps[TEMP_TANK] = tempTank;
     emit tempTankChanged();
 }
 
+void DeviceState::setTempSolarBack(float tempSolarBack) {
+    if (mTemps[TEMP_SOLAR_BACK]==tempSolarBack) return;
+    mTemps[TEMP_SOLAR_BACK] = tempSolarBack;
+    emit tempSolarBackChanged();
+}
+
 void DeviceState::setTempTank2(float tempTank2) {
-    if (mTempTank2==tempTank2) return;
-    mTempTank2 = tempTank2;
+    if (mTemps[TEMP_TANK2]==tempTank2) return;
+    mTemps[TEMP_TANK2] = tempTank2;
     emit tempTank2Changed();
 }
 
 void DeviceState::setTempBoiler(float tempBoiler) {
-    if (mTempBoiler==tempBoiler) return;
-    mTempBoiler = tempBoiler;
+    if (mTemps[TEMP_BOILER]==tempBoiler) return;
+    mTemps[TEMP_BOILER] = tempBoiler;
     emit tempBoilerChanged();
 }
 
 void DeviceState::setTempOutside(float tempOutside) {
-    if (mTempOutside==tempOutside) return;
-    mTempOutside = tempOutside;
+    if (mTemps[TEMP_OUTSIDE]==tempOutside) return;
+    mTemps[TEMP_OUTSIDE] = tempOutside;
     emit tempOutsideChanged();
 }
 
 void DeviceState::setTempSolar(float tempSolar) {
-    if (mTempSolar==tempSolar) return;
-    mTempSolar = tempSolar;
+    if (mTemps[TEMP_SOLAR]==tempSolar) return;
+    mTemps[TEMP_SOLAR] = tempSolar;
     emit tempSolarChanged();
+}
+
+void DeviceState::setRadiatorLevel(quint8 level) {
+    if (mRadiatorLevel==level) return;
+    mRadiatorLevel = level;
+    emit radiatorLevelChanged();
 }
 
 void DeviceState::toggleAndSendIOState(IoDevice device) {
@@ -299,6 +326,9 @@ void DeviceState::simulateTemp(Temperature temp, float value) {
     case TEMP_TANK:
         cmd = CMD_DTEMP_TANK;
         break;
+    case TEMP_SOLAR_BACK:
+        cmd = CMD_DTEMP_SOLAR_BACK;
+        break;
     case TEMP_TANK2:
         cmd = CMD_ATEMP_TANK;
         break;
@@ -329,6 +359,20 @@ void DeviceState::disableTempSimulation(Temperature temp) {
     sendCmd(CMD_DISABLE_SIMULATION, (quint64)(CMD_TEMP_BASE + temp));
 }
 
+QString DeviceState::getTempName(Temperature temp) {
+    switch(temp) {
+    case TEMP_HC: return "HC";
+    case TEMP_WATER: return "WAT";
+    case TEMP_TANK: return "TA1";
+    case TEMP_SOLAR_BACK: return "SOB";
+    case TEMP_TANK2: return "TA2";
+    case TEMP_BOILER: return "BOI";
+    case TEMP_OUTSIDE: return "OUT";
+    case TEMP_SOLAR: return "SOL";
+    }
+}
+
+
 void DeviceState::syncNTPTime() {
     qDebug() << "Sending ntp request";
 
@@ -338,6 +382,10 @@ void DeviceState::syncNTPTime() {
 
 void DeviceState::syncData(int filter) {
     sendCmd(CMD_SYNC_DATA, (qlonglong)filter);
+}
+
+void DeviceState::sendRadiatorLevel(quint8 level) {
+    sendCmd(CMD_RADIATOR_LEVEL, (qlonglong)level);
 }
 
 void DeviceState::onReplyReceived(QHostAddress host, quint16 port, NtpReply reply)

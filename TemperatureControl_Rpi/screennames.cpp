@@ -36,6 +36,7 @@ QString ScreenNames::resolveScreenName(ScreenName sn)
     case SCREEN_IO_CONTROL: return tr("IO Control");
     case SCREEN_TEMPERATURE_CONTROL: return tr("Temperature Control");
     case SCREEN_DEVICE_CONFIGURATION: return tr("Device Configuration");
+    case SCREEN_HEATING_CONTROL: return tr("Heating Control");
 
     default:
         qWarning() << "Unknown screen name:" << sn;

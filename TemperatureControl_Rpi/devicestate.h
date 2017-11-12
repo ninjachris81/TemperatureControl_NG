@@ -46,6 +46,7 @@ public:
         TEMP_HC,
         TEMP_WATER,
         TEMP_TANK,
+        TEMP_SOLAR_BACK,
         TEMP_TANK2,
         TEMP_BOILER,
         TEMP_OUTSIDE,
@@ -68,16 +69,20 @@ public:
     Q_PROPERTY(float tempHC READ tempHC NOTIFY tempHCChanged)
     Q_PROPERTY(float tempWater READ tempWater NOTIFY tempWaterChanged)
     Q_PROPERTY(float tempTank READ tempTank NOTIFY tempTankChanged)
+    Q_PROPERTY(float tempSolarBack READ tempSolarBack NOTIFY tempSolarBackChanged)
     Q_PROPERTY(float tempTank2 READ tempTank2 NOTIFY tempTank2Changed)
     Q_PROPERTY(float tempBoiler READ tempBoiler NOTIFY tempBoilerChanged)
     Q_PROPERTY(float tempOutside READ tempOutside NOTIFY tempOutsideChanged)
     Q_PROPERTY(float tempSolar READ tempSolar NOTIFY tempSolarChanged)
+
+    Q_PROPERTY(quint8 radiatorLevel READ radiatorLevel NOTIFY radiatorLevelChanged)
 
     Q_INVOKABLE void sendTimestamp(quint64 timestamp);
     Q_INVOKABLE void toggleAndSendIOState(IoDevice device);
     Q_INVOKABLE void disableIOSimulations();
     Q_INVOKABLE void simulateTemp(Temperature temp, float value);
     Q_INVOKABLE void disableTempSimulation(Temperature temp);
+    Q_INVOKABLE QString getTempName(Temperature temp);
 
     Q_INVOKABLE float getSimulatedValue(Temperature temp);
     Q_INVOKABLE bool isSimulated(Temperature temp);
@@ -85,6 +90,8 @@ public:
     Q_INVOKABLE void syncNTPTime();
 
     Q_INVOKABLE void syncData(int filter = -1);
+
+    Q_INVOKABLE void sendRadiatorLevel(quint8 level);
 
     void receivedCmd(QString cmd);
 
@@ -103,10 +110,13 @@ public:
     float tempHC() const;
     float tempWater() const;
     float tempTank() const;
+    float tempSolarBack() const;
     float tempTank2() const;
     float tempBoiler() const;
     float tempOutside() const;
     float tempSolar() const;
+
+    quint8 radiatorLevel() const;
 
 public slots:
     void onReplyReceived(QHostAddress host, quint16 port, NtpReply reply);
@@ -122,16 +132,11 @@ private:
     bool mCirculationPump = false;
     bool mHeatChangerPump = false;
 
-    float mTempHC = 0.0;
-    float mTempWater = 0.0;
-    float mTempTank = 0.0;
-    float mTempTank2 = 0.0;
-    float mTempBoiler = 0.0;
-    float mTempOutside = 0.0;
-    float mTempSolar = 0.0;
+    quint8 mRadiatorLevel = 0;
 
     NtpClient mNtpClient;
 
+    float mTemps[TEMP_COUNT];
     bool mTempIsSimulated[TEMP_COUNT];
     float mTempSimulated[TEMP_COUNT];
 
@@ -148,10 +153,13 @@ private:
     void setTempHC(float tempHC);
     void setTempWater(float tempWater);
     void setTempTank(float tempTank);
+    void setTempSolarBack(float tempSolarBack);
     void setTempTank2(float tempTank2);
     void setTempBoiler(float tempBoiler);
     void setTempOutside(float tempOutside);
     void setTempSolar(float tempSolar);
+
+    void setRadiatorLevel(quint8 level);
 
     void sendCmd(quint8 cmd, quint64 value);
     void sendCmd(quint8 cmd, qlonglong value);
@@ -172,12 +180,15 @@ signals:
     void tempHCChanged();
     void tempWaterChanged();
     void tempTankChanged();
+    void tempSolarBackChanged();
     void tempTank2Changed();
     void tempBoilerChanged();
     void tempOutsideChanged();
     void tempSolarChanged();
 
     void ntpTimeSynced();
+
+    void radiatorLevelChanged();
 
 public slots:
 };

@@ -71,6 +71,10 @@ Item {
                 liLabel: ""
                 liScreenIndex: ScreenNames.SCREEN_DEVICE_CONFIGURATION
             }
+            ListElement {
+                liLabel: ""
+                liScreenIndex: ScreenNames.SCREEN_HEATING_CONTROL
+            }
         }
 
         ListModel {

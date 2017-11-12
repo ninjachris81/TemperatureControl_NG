@@ -27,6 +27,8 @@ public:
     uint8_t gasBurnerMinToggleTimeMin;
     uint8_t gasBurnerActiveHourFrom;
     uint8_t gasBurnerActiveHourTo;
+
+    uint8_t tempSolarDelta;
     
     // This is for mere detection if they are your settings
     char version_of_program[4]; // it is the last variable of the struct
@@ -39,6 +41,7 @@ public:
     32, 25,
     38, 45, 10,
     5, 23,
+    3,
     CONFIG_VERSION
   };
 
