@@ -12,6 +12,11 @@ class CommController : public AbstractTask {
     void update();
 
     void sendCmd(uint8_t cmd, String value);
+
+    void incomingData(String data);
+
+private:
+    void _sendCmd(HardwareSerial &target, String receiver, uint8_t cmd, String value);
 };
 
 #endif

@@ -2,6 +2,7 @@
 #include <QDebug>
 #include "devicelog.h"
 #include "devicestate.h"
+#include "../TemperatureControl_Arduino/SerialProtocol.h"
 
 SerialComm::SerialComm(QObject *parent) : QObject(parent), mBytesWritten(0)
 {
@@ -60,8 +61,8 @@ void SerialComm::parseLine(QString line) {
     if (line.endsWith("\n")) line.chop(1);
     qDebug() << "Parsing line" << line;
 
-    if (line.startsWith("!")) {
-        DeviceState::instance()->receivedCmd(line.mid(1));
+    if (line.startsWith(RECEIVER_RPI)) {
+        DeviceState::instance()->receivedCmd(line.mid(CMD_ID));
     } else {
         DeviceLog::instance()->appendLog(line);
     }

@@ -1,4 +1,5 @@
 #define PIN_SERIAL_COMM Serial
+#define PIN_SERIAL_ESP Serial3
 
 #define PIN_BUILTIN_LED 13
 

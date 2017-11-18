@@ -1,4 +1,11 @@
+#define CMD_ID 1
 #define CMD_LENGTH 3
+#define CMD_VALUE_OFFSET CMD_ID + CMD_LENGTH
+
+#define RECEIVER_ALL "a"
+#define RECEIVER_ESP "e"
+#define RECEIVER_MEGA "m"
+#define RECEIVER_RPI "r"
 
 // OTHERS
 #define CMD_TIME 10
@@ -48,3 +55,6 @@
 
 #define CMD_ERROR_TIME 100
 #define CMD_ERROR_DTEMP 101
+
+// MAX
+#define CMD_MAX CMD_ERROR_DTEMP

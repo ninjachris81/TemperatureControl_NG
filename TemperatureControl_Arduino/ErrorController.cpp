@@ -41,6 +41,8 @@ void ErrorController::checkBuzzerState() {
 }
 
 void ErrorController::raiseError(uint8_t type) {
+  if (type>=ERROR_COUNT) return;
+  
   if (errors[type]) return;    // already
   
   errors[type] = true;
@@ -49,6 +51,7 @@ void ErrorController::raiseError(uint8_t type) {
 }
 
 void ErrorController::clearError(uint8_t type) {
+  if (type>=ERROR_COUNT) return;
   if (!errors[type]) return;    // already
 
   errors[type] = false;

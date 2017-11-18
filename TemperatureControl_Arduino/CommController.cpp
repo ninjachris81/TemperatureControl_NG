@@ -21,25 +21,31 @@ CommController::CommController() : AbstractTask() {
 
 void CommController::init() {
   PIN_SERIAL_COMM.begin(9600);
+  PIN_SERIAL_ESP.begin(9600);
+  PIN_SERIAL_COMM.setTimeout(500);
+  PIN_SERIAL_ESP.setTimeout(500);
 }
 
 void CommController::update() {
-  if (PIN_SERIAL_COMM.available()) {
-    String s = PIN_SERIAL_COMM.readStringUntil('\n');
+  //_update(PIN_SERIAL_COMM);
+  //_update(PIN_SERIAL_ESP);
+}
 
-    LOG_PRINTLN(F("Received:"));
-    LOG_PRINTLN(s);
+void CommController::incomingData(String data) {
+  if (data.substring(0,CMD_ID)==RECEIVER_MEGA || data.substring(0, CMD_ID)==RECEIVER_ALL) {
+    LOG_PRINT(F("Received: "));
+    LOG_PRINTLN(data);
 
-    uint8_t cmd = s.substring(0,CMD_LENGTH).toInt();
+    uint8_t cmd = data.substring(CMD_ID,CMD_VALUE_OFFSET).toInt();
 
     switch(cmd) {
       case CMD_TIME: {
-        unsigned long epoch = strtoul(s.substring(CMD_LENGTH).c_str(), NULL, 10);
+        unsigned long epoch = strtoul(data.substring(CMD_VALUE_OFFSET).c_str(), NULL, 10);
         taskManager->getTask<TimeController*>(TIME_CONTROLLER)->handleTime(epoch);
         break;
       }
       case CMD_RADIATOR_LEVEL:
-        taskManager->getTask<HeaterController*>(HEATER_CONTROLLER)->setRadiatorLevel(s.substring(CMD_LENGTH).toInt());
+        taskManager->getTask<HeaterController*>(HEATER_CONTROLLER)->setRadiatorLevel(data.substring(CMD_VALUE_OFFSET).toInt());
         break;
       case CMD_SOLAR_PUMP:
       case CMD_RADIATOR_PUMP:
@@ -47,21 +53,21 @@ void CommController::update() {
       case CMD_CIRCULATION_PUMP:
       case CMD_HEAT_CHANGER_PUMP:
         LOG_PRINTLN(F("Simulating IO"));
-        taskManager->getTask<IOController*>(IO_CONTROLLER)->simulateState(cmd - CMD_IO_BASE, s.substring(CMD_LENGTH).toInt()==1);
+        taskManager->getTask<IOController*>(IO_CONTROLLER)->simulateState(cmd - CMD_IO_BASE, data.substring(CMD_VALUE_OFFSET).toInt()==1);
         break;
         
       case CMD_BUZZER:
         LOG_PRINTLN(F("Buzzer"));
-        taskManager->getTask<BuzzerController*>(BUZZER_CONTROLLER)->setBuzzerState(s.substring(CMD_LENGTH).toInt()==1);
+        taskManager->getTask<BuzzerController*>(BUZZER_CONTROLLER)->setBuzzerState(data.substring(CMD_VALUE_OFFSET).toInt()==1);
         break;
 
       case CMD_DISABLE_SIMULATION:
-        if (s.substring(CMD_LENGTH).toInt()>=CMD_TEMP_BASE) {
+        if (data.substring(CMD_VALUE_OFFSET).toInt()>=CMD_TEMP_BASE) {
           LOG_PRINTLN(F("Disable Temp simulation"));
-          taskManager->getTask<TemperatureController*>(TEMPERATURE_CONTROLLER)->disableSimulation(s.substring(CMD_LENGTH).toInt() - CMD_TEMP_BASE);
-        } else if (s.substring(CMD_LENGTH).toInt()>=CMD_IO_BASE) {
+          taskManager->getTask<TemperatureController*>(TEMPERATURE_CONTROLLER)->disableSimulation(data.substring(CMD_VALUE_OFFSET).toInt() - CMD_TEMP_BASE);
+        } else if (data.substring(CMD_VALUE_OFFSET).toInt()>=CMD_IO_BASE) {
           LOG_PRINTLN(F("Disable IO simulation"));
-          taskManager->getTask<IOController*>(IO_CONTROLLER)->disableSimulation(s.substring(CMD_LENGTH).toInt() - CMD_IO_BASE);
+          taskManager->getTask<IOController*>(IO_CONTROLLER)->disableSimulation(data.substring(CMD_VALUE_OFFSET).toInt() - CMD_IO_BASE);
         } else {
           LOG_PRINTLN(F("Unknown disable simu"));
         }
@@ -74,7 +80,7 @@ void CommController::update() {
       case CMD_CONF_NORMAL_TEMP_HC:
       case CMD_CONF_NORMAL_TEMP_WATER:
         LOG_PRINTLN(F("Set Config"));
-        taskManager->getTask<ConfigController*>(CONFIG_CONTROLLER)->setConfigValue(cmd, s.substring(CMD_LENGTH));
+        taskManager->getTask<ConfigController*>(CONFIG_CONTROLLER)->setConfigValue(cmd, data.substring(CMD_VALUE_OFFSET));
         break;
 
       case CMD_DTEMP_HC:
@@ -86,12 +92,12 @@ void CommController::update() {
       case CMD_ATEMP_OUTSIDE:
       case CMD_ATEMP_SOLAR:
         LOG_PRINTLN(F("Simulating Temp"));
-        taskManager->getTask<TemperatureController*>(TEMPERATURE_CONTROLLER)->simulateTemp(cmd - CMD_TEMP_BASE, s.substring(CMD_LENGTH).toFloat());
+        taskManager->getTask<TemperatureController*>(TEMPERATURE_CONTROLLER)->simulateTemp(cmd - CMD_TEMP_BASE, data.substring(CMD_VALUE_OFFSET).toFloat());
         break;
         
       case CMD_SYNC_DATA: {
         int filter = -1;
-        if (s.length()>CMD_LENGTH) filter = s.substring(CMD_LENGTH).toInt();
+        if (data.length()>CMD_VALUE_OFFSET) filter = data.substring(CMD_VALUE_OFFSET).toInt();
         LOG_PRINT(F("Sync data "));
         LOG_PRINTLN(filter);
         taskManager->getTask<BroadcastController*>(BROADCAST_CONTROLLER)->syncData(filter);
@@ -100,7 +106,7 @@ void CommController::update() {
       
       case CMD_ERROR_TIME:
       case CMD_ERROR_DTEMP:
-        if (s.substring(CMD_LENGTH).toInt()==1) {
+        if (data.substring(CMD_VALUE_OFFSET).toInt()==1) {
           LOG_PRINTLN(F("Simulate raise error"));
           taskManager->getTask<ErrorController*>(ERROR_CONTROLLER)->raiseError(CMD_ERROR_BASE - cmd);
         } else {
@@ -113,17 +119,33 @@ void CommController::update() {
         LOG_PRINT(F("Unknown cmd "));
         LOG_PRINTLN(cmd);
     }
+  } else {
+    // ignore
   }
 }
 
 void CommController::sendCmd(uint8_t cmd, String value) {
-  PIN_SERIAL_COMM.print("!");
-  if (cmd<10) {
-    PIN_SERIAL_COMM.print("00");
-  } else if (cmd<100) {
-    PIN_SERIAL_COMM.print("0");
+  _sendCmd(PIN_SERIAL_COMM, RECEIVER_RPI, cmd, value);
+  _sendCmd(PIN_SERIAL_ESP, RECEIVER_ESP, cmd, value);
+}
+
+void CommController::_sendCmd(HardwareSerial &target, String receiver, uint8_t cmd, String value) {
+  LOG_PRINT(F("Sending: "));
+  LOG_PRINT(cmd);
+  LOG_PRINT(" ");
+  LOG_PRINTLN(value);
+
+  if (target) {
+    target.print(receiver);
+    if (cmd<10) {
+      target.print("00");
+    } else if (cmd<100) {
+      target.print("0");
+    }
+    target.print(cmd);
+    target.println(value);
+  } else {
+    LOG_PRINT(F("Cannot send to target"));
   }
-  PIN_SERIAL_COMM.print(cmd);
-  PIN_SERIAL_COMM.println(value);
 }
 

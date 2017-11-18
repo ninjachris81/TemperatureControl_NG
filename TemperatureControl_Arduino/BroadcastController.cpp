@@ -42,7 +42,6 @@ void BroadcastController::registerSyncSupport(SyncSupport* ss) {
 void BroadcastController::syncData(int filter) {
   if (filter==-1 || filter==CMD_FREE_RAM) taskManager->getTask<CommController*>(COMM_CONTROLLER)->sendCmd(CMD_FREE_RAM, String(freeRam.getValue()));
   if (filter==-1 || filter==CMD_UPTIME) taskManager->getTask<CommController*>(COMM_CONTROLLER)->sendCmd(CMD_UPTIME, String(millis()));
-  if (filter==-1 || filter==CMD_TIME) taskManager->getTask<CommController*>(COMM_CONTROLLER)->sendCmd(CMD_TIME, String(now()));
 
   for (uint8_t i=0;i<syncSupportCount;i++) {
     syncSupports[i]->syncData(filter);

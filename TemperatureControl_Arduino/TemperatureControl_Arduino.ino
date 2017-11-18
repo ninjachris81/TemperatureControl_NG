@@ -14,6 +14,7 @@ board=mega
 
 #include "Debug.h"
 #include "Credentials.h"
+#include "TaskIDs.h"
 #include "IOController.h"
 #include "TemperatureController.h"
 #include "SolarController.h"
@@ -67,3 +68,18 @@ void loop() {
   taskManager.update();
   delay(10);
 }
+
+void serialEvent() {
+  if (Serial.available()) {
+    String data = Serial.readStringUntil('\n');
+    taskManager.getTask<CommController*>(COMM_CONTROLLER)->incomingData(data);
+  }
+}
+
+void serialEvent3() {
+  if (Serial3.available()) {
+    String data = Serial3.readStringUntil('\n');
+    taskManager.getTask<CommController*>(COMM_CONTROLLER)->incomingData(data);
+  }
+}
+

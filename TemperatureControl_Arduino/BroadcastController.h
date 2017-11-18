@@ -6,9 +6,9 @@
 #include "Property.h"
 
 #ifdef IS_DEBUG
-  #define BROADCAST_INTERVAL 2000
-#else 
   #define BROADCAST_INTERVAL 5000
+#else 
+  #define BROADCAST_INTERVAL 10000
 #endif
 
 #define MAX_SYNC_SUPPORT 10

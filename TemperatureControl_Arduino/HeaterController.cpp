@@ -91,6 +91,9 @@ void HeaterController::setRadiatorLevel(uint8_t radiatorLevel) {
   
   radiatorLevel = constrain(radiatorLevel, 0, 8);
   this->radiatorLevel = radiatorLevel;
+  taskManager->getTask<ConfigController*>(CONFIG_CONTROLLER)->getConfig()->radiatorLevel = radiatorLevel;
+  taskManager->getTask<ConfigController*>(CONFIG_CONTROLLER)->saveConfig();
+
   taskManager->getTask<CommController*>(COMM_CONTROLLER)->sendCmd(CMD_RADIATOR_LEVEL, String(radiatorLevel));
 }
 

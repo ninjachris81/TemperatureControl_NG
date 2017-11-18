@@ -1,3 +1,4 @@
 /build-*
 /TemperatureControl_Arduino/Credentials.h
 *.pro.user*
+/TemperatureControl_ESP/Credentials.h

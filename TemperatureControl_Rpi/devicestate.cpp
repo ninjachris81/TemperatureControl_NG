@@ -15,8 +15,8 @@ DeviceState::DeviceState(QObject *parent) : QObject(parent)
 }
 
 void DeviceState::receivedCmd(QString cmd) {
-    uint8_t cmdId = cmd.mid(0,2).toShort();
-    QString value = cmd.mid(2);
+    uint8_t cmdId = cmd.mid(0,CMD_LENGTH).toShort();
+    QString value = cmd.mid(CMD_LENGTH);
 
     switch(cmdId) {
     case CMD_FREE_RAM:
@@ -420,7 +420,9 @@ void DeviceState::sendCmd(quint8 cmd, bool value) {
 
 void DeviceState::sendCmd(quint8 cmd, QString value) {
     QByteArray data;
-    data.append(QString::number(cmd));
+
+    data.append(RECEIVER_MEGA);
+    data.append(QString("%1").arg(cmd, CMD_LENGTH, 10, QChar('0')));
     data.append(value);
     data.append("\n");
 

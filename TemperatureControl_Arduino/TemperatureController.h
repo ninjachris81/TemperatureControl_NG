@@ -11,7 +11,7 @@
 
 #include "Pins.h"
 
-#define TEMP_INTERVAL_MS 1000
+#define TEMP_INTERVAL_MS 2000
 
 #define DIGITAL_SENSOR_COUNT 4
 
