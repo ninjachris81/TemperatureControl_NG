@@ -4,7 +4,6 @@ import QtQuick.Controls 2.2
 
 import de.tempcontrol 1.0
 
-import "qrc:/qml/."
 import "qrc:/qml/components/acx"
 import "qrc:/qml/components/acx/button"
 import "qrc:/qml/components/acx/label"
@@ -25,40 +24,42 @@ ACXScreenBase {
         columns: 2
 
         ACXLabel {
-            Layout.preferredWidth: 200
+            Layout.preferredWidth: 230
             Layout.preferredHeight: 40
 
-            text: qsTr("Radiator Level")
+            text: qsTr("Radiator Level Day")
         }
 
         ACXLabel {
             Layout.fillWidth: true
             Layout.preferredHeight: 40
 
-            text: DeviceState.radiatorLevel
+            text: DeviceState.radiatorLevelDay
         }
 
         ACXCheckBox {
-            Layout.preferredHeight: 50
-            Layout.preferredWidth: 200
+            id: radiatorLevelDay
 
-            id: radiatorLevel
+            Layout.preferredHeight: 50
+            Layout.preferredWidth: 230
+
+            checked: DeviceState.radiatorLevelDay>0
 
             onToggled: {
                 if (!checked) {
-                    DeviceState.sendRadiatorLevel(0)
+                    DeviceState.sendRadiatorLevelDay(0)
                 } else {
-                    DeviceState.sendRadiatorLevel(slider.value)
+                    DeviceState.sendRadiatorLevelDay(sliderDay.value)
                 }
             }
         }
 
         Slider {
-            id: slider
+            id: sliderDay
             Layout.fillWidth: true
             Layout.preferredHeight: 50
 
-            enabled: radiatorLevel.checked
+            enabled: radiatorLevelDay.checked
 
             snapMode: Slider.SnapAlways
 
@@ -68,7 +69,58 @@ ACXScreenBase {
             to: 8
 
             onMoved: {
-                DeviceState.sendRadiatorLevel(slider.value)
+                DeviceState.sendRadiatorLevelDay(sliderDay.value)
+            }
+        }
+
+        ACXLabel {
+            Layout.topMargin: 40
+            Layout.preferredWidth: 230
+            Layout.preferredHeight: 40
+
+            text: qsTr("Radiator Level Night")
+        }
+
+        ACXLabel {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 40
+
+            text: DeviceState.radiatorLevelNight
+        }
+
+        ACXCheckBox {
+            id: radiatorLevelNight
+
+            Layout.preferredHeight: 50
+            Layout.preferredWidth: 230
+
+            checked: DeviceState.radiatorLevelNight>0
+
+            onToggled: {
+                if (!checked) {
+                    DeviceState.sendRadiatorLevelNight(0)
+                } else {
+                    DeviceState.sendRadiatorLevelNight(sliderNight.value)
+                }
+            }
+        }
+
+        Slider {
+            id: sliderNight
+            Layout.fillWidth: true
+            Layout.preferredHeight: 50
+
+            enabled: radiatorLevelNight.checked
+
+            snapMode: Slider.SnapAlways
+
+            stepSize: 1
+
+            from: 1
+            to: 8
+
+            onMoved: {
+                DeviceState.sendRadiatorLevelNight(sliderNight.value)
             }
         }
 

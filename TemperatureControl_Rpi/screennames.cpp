@@ -1,11 +1,17 @@
 #include "screennames.h"
 
+QString ScreenNames::homeScreen = "";
+
 ScreenNames::ScreenNames() : QObject()
 {
 }
 
 QString ScreenNames::resolveScreenUrl(ScreenName sn)
 {
+    if (sn==SCREEN_HOME) {
+        if (!homeScreen.isEmpty()) return homeScreen;
+    }
+
     static int enumIdx = ScreenNames::staticMetaObject.indexOfEnumerator("ScreenName");
     QString t = ScreenNames::staticMetaObject.enumerator(enumIdx).valueToKey(sn);
 
@@ -37,9 +43,16 @@ QString ScreenNames::resolveScreenName(ScreenName sn)
     case SCREEN_TEMPERATURE_CONTROL: return tr("Temperature Control");
     case SCREEN_DEVICE_CONFIGURATION: return tr("Device Configuration");
     case SCREEN_HEATING_CONTROL: return tr("Heating Control");
+    case SCREEN_SOLAR_CONTROL: return tr("Solar Control");
 
     default:
         qWarning() << "Unknown screen name:" << sn;
         return "";
     }
+}
+
+void ScreenNames::setHomeScreen(const QString &value)
+{
+    qDebug() << Q_FUNC_INFO << value;
+    homeScreen = value;
 }

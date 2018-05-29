@@ -1,5 +1,4 @@
 module acx.statusbar
 
 ACXStatusBar 1.0 ACXStatusBar.qml
-ACXStatusBarButton 1.0 ACXStatusBarButton.qml
 ACXStatusBarClock 1.0 ACXStatusBarClock.qml

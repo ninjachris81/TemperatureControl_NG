@@ -11,6 +11,8 @@ Item {
     property int screenIndex: ScreenNames.SCREEN_INVALID
     property string name: ""            // dont bind this to screenIndex, since the stackView will set this - might be different !
 
+    property bool showHome: true
+
     property int jumpBackIndex: ScreenNames.SCREEN_INVALID
 
     property int prevScreen: stackView.depth>1 ? stackView.get(stackView.depth-2, true).screenIndex : ScreenNames.SCREEN_INVALID
@@ -206,6 +208,8 @@ Item {
         id: homeButton
 
         z: root.z + 1
+
+        visible: root.showHome
 
         anchors.top: parent.top
         anchors.topMargin: -parent.anchors.topMargin

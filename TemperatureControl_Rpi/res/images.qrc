@@ -10,10 +10,7 @@
         <file>images/statusbar/icons/wlan_3.png</file>
         <file>images/statusbar/icons/wlan_4.png</file>
         <file>images/statusbar/icons/info.png</file>
-        <file>images/statusbar/01_topbar_bg.png</file>
-        <file>images/statusbar/02_divider_reflection.png</file>
         <file>images/statusbar/03_item_pressed.png</file>
-        <file>images/statusbar/04_topbar_bg2.png</file>
         <file>images/statusbar/icons/menu.png</file>
         <file>images/statusbar/icons/info_warning.png</file>
         <file>images/common/buttons/mainbutton.png</file>
@@ -94,5 +91,7 @@
         <file>images/oilchange/bg_machine.png</file>
         <file>images/oilchange/connector.png</file>
         <file>images/process/process_bg.png</file>
+        <file>images/icons/solar-panel-in-sunlight.png</file>
+        <file>images/icons/vintage-mercury-thermometer-.png</file>
     </qresource>
 </RCC>

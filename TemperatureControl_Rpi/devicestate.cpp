@@ -1,12 +1,9 @@
 #include "devicestate.h"
 
-#include "serialcomm.h"
 #include "../TemperatureControl_Arduino/SerialProtocol.h"
 
 DeviceState::DeviceState(QObject *parent) : QObject(parent)
 {
-    connect(&mNtpClient, SIGNAL(replyReceived(QHostAddress,quint16,NtpReply)), SLOT(onReplyReceived(QHostAddress,quint16,NtpReply)));
-
     for (quint8 i=0;i<TEMP_COUNT;i++) {
         mTempIsSimulated[i] = false;
         mTempSimulated[i] = 0;
@@ -14,10 +11,17 @@ DeviceState::DeviceState(QObject *parent) : QObject(parent)
     }
 }
 
+void DeviceState::setComm(CommInterface* comm) {
+    mComm = comm;
+}
+
 void DeviceState::receivedCmd(QString cmd) {
     uint8_t cmdId = cmd.mid(0,CMD_LENGTH).toShort();
     QString value = cmd.mid(CMD_LENGTH);
+    receivedCmd(cmdId, value);
+}
 
+void DeviceState::receivedCmd(quint8 cmdId, QString value) {
     switch(cmdId) {
     case CMD_FREE_RAM:
         setFreeRam(value.toInt());
@@ -29,8 +33,11 @@ void DeviceState::receivedCmd(QString cmd) {
         setUptime(value.toLongLong());
         break;
 
-    case CMD_RADIATOR_LEVEL:
-        setRadiatorLevel(value.toUShort());
+    case CMD_CONF_RADIATOR_LEVEL_DAY:
+        setRadiatorLevelDay(value.toUShort());
+        break;
+    case CMD_CONF_RADIATOR_LEVEL_NIGHT:
+        setRadiatorLevelNight(value.toUShort());
         break;
 
     case CMD_SOLAR_PUMP:
@@ -150,8 +157,17 @@ float DeviceState::tempSolar() const {
     return mTemps[TEMP_SOLAR];
 }
 
-quint8 DeviceState::radiatorLevel() const {
-    return mRadiatorLevel;
+quint8 DeviceState::radiatorLevelDay() const {
+    return mRadiatorLevelDay;
+}
+
+quint8 DeviceState::radiatorLevelNight() const {
+    return mRadiatorLevelNight;
+}
+
+void DeviceState::setTimestampFromNTP(const quint64 &timestamp) {
+    setTimestamp(timestamp);
+    sendTimestamp(timestamp);
 }
 
 void DeviceState::setHeatChangerPump(bool heatChangerPump)
@@ -258,10 +274,16 @@ void DeviceState::setTempSolar(float tempSolar) {
     emit tempSolarChanged();
 }
 
-void DeviceState::setRadiatorLevel(quint8 level) {
-    if (mRadiatorLevel==level) return;
-    mRadiatorLevel = level;
-    emit radiatorLevelChanged();
+void DeviceState::setRadiatorLevelDay(quint8 level) {
+    if (mRadiatorLevelDay==level) return;
+    mRadiatorLevelDay = level;
+    emit radiatorLevelDayChanged();
+}
+
+void DeviceState::setRadiatorLevelNight(quint8 level) {
+    if (mRadiatorLevelNight==level) return;
+    mRadiatorLevelNight = level;
+    emit radiatorLevelNightChanged();
 }
 
 void DeviceState::toggleAndSendIOState(IoDevice device) {
@@ -343,7 +365,7 @@ void DeviceState::simulateTemp(Temperature temp, float value) {
         break;
     }
 
-    sendCmd(cmd, QString::number(value));
+    sendCmd(cmd, value);
 }
 
 float DeviceState::getSimulatedValue(Temperature temp) {
@@ -372,32 +394,12 @@ QString DeviceState::getTempName(Temperature temp) {
     }
 }
 
-
-void DeviceState::syncNTPTime() {
-    qDebug() << "Sending ntp request";
-
-    QHostAddress addr("52.58.132.98");
-    mNtpClient.sendRequest(addr, 123);
-}
-
 void DeviceState::syncData(int filter) {
     sendCmd(CMD_SYNC_DATA, (qlonglong)filter);
 }
 
-void DeviceState::sendRadiatorLevel(quint8 level) {
-    sendCmd(CMD_RADIATOR_LEVEL, (qlonglong)level);
-}
-
-void DeviceState::onReplyReceived(QHostAddress host, quint16 port, NtpReply reply)
-{
-    Q_UNUSED(host)
-    Q_UNUSED(port)
-
-    qDebug() << "setting time" << reply.referenceTime();
-    setTimestamp(reply.referenceTime().toSecsSinceEpoch());
-    sendTimestamp(reply.referenceTime().toSecsSinceEpoch());
-
-    emit ntpTimeSynced();
+void DeviceState::sendRadiatorLevel(quint8 level, bool isDay) {
+    sendCmd(isDay ? CMD_CONF_RADIATOR_LEVEL_DAY : CMD_CONF_RADIATOR_LEVEL_NIGHT, (qlonglong)level);
 }
 
 void DeviceState::sendTimestamp(quint64 timestamp) {
@@ -406,26 +408,18 @@ void DeviceState::sendTimestamp(quint64 timestamp) {
 }
 
 void DeviceState::sendCmd(quint8 cmd, quint64 value) {
-    sendCmd(cmd, QString::number(value));
+    mComm->sendCmd(cmd, QString::number(value));
 }
 
 void DeviceState::sendCmd(quint8 cmd, qlonglong value) {
-    sendCmd(cmd, QString::number(value));
+    mComm->sendCmd(cmd, QString::number(value));
+}
+
+void DeviceState::sendCmd(quint8 cmd, float value) {
+    mComm->sendCmd(cmd, QString::number(value));
 }
 
 void DeviceState::sendCmd(quint8 cmd, bool value) {
     QString v = value ? "1" : "0";
-    sendCmd(cmd, v);
-}
-
-void DeviceState::sendCmd(quint8 cmd, QString value) {
-    QByteArray data;
-
-    data.append(RECEIVER_MEGA);
-    data.append(QString("%1").arg(cmd, CMD_LENGTH, 10, QChar('0')));
-    data.append(value);
-    data.append("\n");
-
-    qDebug() << "Sending cmd" << data;
-    SerialComm::instance()->write(data);
+    mComm->sendCmd(cmd, v);
 }

@@ -7,12 +7,12 @@
 #include <QDebug>
 #include <QQmlEngine>
 
-class SerialComm : public QObject
+#include "comminterface.h"
+
+class SerialComm : public CommInterface
 {
     Q_OBJECT
 public:
-    ~SerialComm();
-
     static QObject *newInstance(QQmlEngine *engine, QJSEngine *scriptEngine)
     {
         Q_UNUSED(engine);
@@ -30,19 +30,13 @@ public:
         return &m_instance;
     }
 
-    Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
-
-    void write(const QByteArray &writeData);
-
-    bool isConnected() const;
-    void setIsConnected(bool isConnected);
+    void write(const QByteArray &writeData) override;
 
 private:
     explicit SerialComm(QObject *parent = nullptr);
+    ~SerialComm();
 
     QSerialPort mSerialPort;
-
-    bool mIsConnected = false;
 
     qint64 mBytesWritten;
     qint64 mBytesToWrite;
@@ -56,9 +50,6 @@ private slots:
     void handleError(QSerialPort::SerialPortError error);
     void handleTimeout();
     void handleBytesWritten(qint64 bytes);
-
-signals:
-    void isConnectedChanged();
 
 public slots:
     void tryConnect();

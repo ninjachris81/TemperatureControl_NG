@@ -7,8 +7,7 @@
 #include <QHostAddress>
 #include <QNetworkReply>
 
-#include "qntp/NtpReply.h"
-#include "qntp/NtpClient.h"
+#include "comminterface.h"
 
 class DeviceState : public QObject
 {
@@ -32,6 +31,8 @@ public:
         static DeviceState m_instance;
         return &m_instance;
     }
+
+    void setComm(CommInterface* comm);
 
     enum IoDevice {
         IOD_SOLAR_PUMP,
@@ -75,7 +76,8 @@ public:
     Q_PROPERTY(float tempOutside READ tempOutside NOTIFY tempOutsideChanged)
     Q_PROPERTY(float tempSolar READ tempSolar NOTIFY tempSolarChanged)
 
-    Q_PROPERTY(quint8 radiatorLevel READ radiatorLevel NOTIFY radiatorLevelChanged)
+    Q_PROPERTY(quint8 radiatorLevelDay READ radiatorLevelDay NOTIFY radiatorLevelDayChanged)
+    Q_PROPERTY(quint8 radiatorLevelNight READ radiatorLevelNight NOTIFY radiatorLevelNightChanged)
 
     Q_INVOKABLE void sendTimestamp(quint64 timestamp);
     Q_INVOKABLE void toggleAndSendIOState(IoDevice device);
@@ -87,13 +89,12 @@ public:
     Q_INVOKABLE float getSimulatedValue(Temperature temp);
     Q_INVOKABLE bool isSimulated(Temperature temp);
 
-    Q_INVOKABLE void syncNTPTime();
-
     Q_INVOKABLE void syncData(int filter = -1);
 
-    Q_INVOKABLE void sendRadiatorLevel(quint8 level);
+    Q_INVOKABLE void sendRadiatorLevel(quint8 level, bool isDay);
 
     void receivedCmd(QString cmd);
+    void receivedCmd(quint8 cmdId, QString value);
 
     quint16 freeRam() const;
 
@@ -116,12 +117,14 @@ public:
     float tempOutside() const;
     float tempSolar() const;
 
-    quint8 radiatorLevel() const;
+    quint8 radiatorLevelDay() const;
+    quint8 radiatorLevelNight() const;
 
-public slots:
-    void onReplyReceived(QHostAddress host, quint16 port, NtpReply reply);
+    void setTimestampFromNTP(const quint64 &timestamp);
 
 private:
+    CommInterface* mComm;
+
     quint16 mFreeRam = 0;
     quint64 mTimestamp = 0;
     quint64 mUptime = 0;
@@ -132,9 +135,8 @@ private:
     bool mCirculationPump = false;
     bool mHeatChangerPump = false;
 
-    quint8 mRadiatorLevel = 0;
-
-    NtpClient mNtpClient;
+    quint8 mRadiatorLevelDay = 0;
+    quint8 mRadiatorLevelNight = 0;
 
     float mTemps[TEMP_COUNT];
     bool mTempIsSimulated[TEMP_COUNT];
@@ -159,13 +161,13 @@ private:
     void setTempOutside(float tempOutside);
     void setTempSolar(float tempSolar);
 
-    void setRadiatorLevel(quint8 level);
+    void setRadiatorLevelDay(quint8 level);
+    void setRadiatorLevelNight(quint8 level);
 
     void sendCmd(quint8 cmd, quint64 value);
     void sendCmd(quint8 cmd, qlonglong value);
     void sendCmd(quint8 cmd, float value);
     void sendCmd(quint8 cmd, bool value);
-    void sendCmd(quint8 cmd, QString value);
 signals:
     void freeRamChanged();
     void timestampChanged();
@@ -186,9 +188,8 @@ signals:
     void tempOutsideChanged();
     void tempSolarChanged();
 
-    void ntpTimeSynced();
-
-    void radiatorLevelChanged();
+    void radiatorLevelDayChanged();
+    void radiatorLevelNightChanged();
 
 public slots:
 };

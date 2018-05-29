@@ -4,7 +4,6 @@ import QtQuick.Controls 2.2
 
 import de.tempcontrol 1.0
 
-import "qrc:/qml/."
 import "qrc:/qml/components/acx"
 import "qrc:/qml/components/acx/button"
 import "qrc:/qml/components/acx/label"

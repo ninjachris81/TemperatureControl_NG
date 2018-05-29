@@ -4,7 +4,7 @@
 #include "devicestate.h"
 #include "../TemperatureControl_Arduino/SerialProtocol.h"
 
-SerialComm::SerialComm(QObject *parent) : QObject(parent), mBytesWritten(0)
+SerialComm::SerialComm(QObject *parent) : CommInterface(parent), mBytesWritten(0)
 {
     mSerialPort.setPortName("ttyMega");
     mSerialPort.setBaudRate(QSerialPort::Baud9600);
@@ -18,18 +18,6 @@ SerialComm::SerialComm(QObject *parent) : QObject(parent), mBytesWritten(0)
     connect(&mTimer, SIGNAL(timeout()), SLOT(handleTimeout()));
 
     tryConnect();
-}
-
-bool SerialComm::isConnected() const
-{
-    return mIsConnected;
-}
-
-void SerialComm::setIsConnected(bool isConnected)
-{
-    if (mIsConnected==isConnected) return;
-    mIsConnected = isConnected;
-    emit isConnectedChanged();
 }
 
 SerialComm::~SerialComm() {

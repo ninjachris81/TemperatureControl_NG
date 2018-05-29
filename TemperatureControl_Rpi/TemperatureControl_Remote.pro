@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += qml quick svg sql charts quickcontrols2 serialport
+QT += qml quick svg sql quickcontrols2
 CONFIG += c++11
 
 RESOURCES += res/qml.qrc \
@@ -14,7 +14,7 @@ DEFINES += "QNTP_EXPORT="
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 
-QML_IMPORT_PATH += ./qml/components/acx/
+QML_IMPORT_PATH += $$PWD/res/qml/components/acx
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH = ./qml/components/acx/
@@ -36,24 +36,19 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 SOURCES += \
-    main.cpp \
+    remote/main.cpp \
     screennames.cpp \
-    serialcomm.cpp \
-    devicelog.cpp \
     devicestate.cpp \
-    qntp/NtpClient.cpp \
-    qntp/NtpReply.cpp
+    comminterface.cpp \
+    restcomm.cpp \
+    localconfig.cpp
 
 HEADERS += \
     screennames.h \
-    serialcomm.h \
-    devicelog.h \
     devicestate.h \
     ../TemperatureControl_Arduino/SerialProtocol.h \
     qntp/config.h \
-    qntp/NtpClient.h \
-    qntp/NtpPacket.h \
-    qntp/NtpReply.h \
-    qntp/NtpReply_p.h \
-    qntp/NtpTimestamp.h \
-    qntp/QNtp.h
+    comminterface.h \
+    restcomm.h \
+    localconfig.h
+

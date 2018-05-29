@@ -11,8 +11,12 @@ ACXLabel {
     verticalAlignment: Text.AlignVCenter
     horizontalAlignment: Text.AlignHCenter
 
-    text: Qt.formatTime(TimeServiceManager.currentDateTime, TimeServiceManager.currentTimeFormat)
+    text: Qt.formatDateTime(LocalConfig.currentDateTime)
 
-    font.pointSize: 13
-    color: "white"
+    //font.pointSize: 18
+    color: "black"
+
+    Component.onCompleted: {
+        console.log(LocalConfig.currentDateTime + "bw")
+    }
 }
